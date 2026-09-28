@@ -847,18 +847,16 @@
     const HOURS_FORM_BASE =
       "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=1mtrlxW7AkmwMR-5X-CEWJQP1DIwYVtIkbNbNcmA111UN05JUUkzNDJUNEJKTUI2V0NPRTVKN0I1Ni4u";
 
-    const EMPLOYEE_FIELD_ID = "rf30c382e5e404e78ac0291ebfe5fc08d";
+  const EMPLOYEE_FIELD_ID = "r7a7c69578b0742abb8cf5bed6501e5ad";
 
-   function buildHoursFormUrl(code, name) {
+function buildHoursFormUrl(code, name) {
   if (!code || !name) return "";
-
-  const prefilledValue = `"${code} ${name}"`;
 
   return HOURS_FORM_BASE
     + "&"
     + EMPLOYEE_FIELD_ID
     + "="
-    + encodeURIComponent(prefilledValue);
+    + encodeURIComponent(code);
 }
 
     const WBS_API_URL = "https://wbs-api.d-nowacki.workers.dev";
