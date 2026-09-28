@@ -13,7 +13,7 @@
       --card:rgba(17,24,39,.78);
       --card2:rgba(30,41,59,.72);
       --text:#f8fafc;
-      --muted:#a8b3c7;
+      --muted:#a8b3c7;          
       --accent:#facc15;
       --accent2:#38bdf8;
       --line:rgba(255,255,255,.08);
@@ -844,28 +844,22 @@
       2. Pozostałe moduły mogą być na razie puste.
     */
 
-    // Lista pracowników.
-    // Dodając kolejne osoby, dopisujemy tylko: "KOD": "Imię Nazwisko"
-    const EMPLOYEES = {
-      "WBS-E-001": "Dominik Nowacki",
-      "WBS-E-002": "Szymon Czopczyc",
-      "WBS-E-003": "Patryk Krawczyszyn",
-      "WBS-E-004": "Łukasz Nosek",
-      "WBS-E-005": "Michał Wajs"
-    };
-
     const HOURS_FORM_BASE =
       "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=1mtrlxW7AkmwMR-5X-CEWJQP1DIwYVtIkbNbNcmA111UN05JUUkzNDJUNEJKTUI2V0NPRTVKN0I1Ni4u";
 
     const EMPLOYEE_FIELD_ID = "rf30c382e5e404e78ac0291ebfe5fc08d";
 
-    function buildHoursFormUrl(code) {
-      const name = EMPLOYEES[code];
-      if (!name) return "";
+   function buildHoursFormUrl(code, name) {
+  if (!code || !name) return "";
 
-      const prefilledValue = `"${code} ${name}"`;
-      return HOURS_FORM_BASE + "&" + EMPLOYEE_FIELD_ID + "=" + encodeURIComponent(prefilledValue);
-    }
+  const prefilledValue = `"${code} ${name}"`;
+
+  return HOURS_FORM_BASE
+    + "&"
+    + EMPLOYEE_FIELD_ID
+    + "="
+    + encodeURIComponent(prefilledValue);
+}
 
     const WBS_API_URL = "https://wbs-api.d-nowacki.workers.dev";
     const TOOLS_URL = "";     // ustawimy później
@@ -896,25 +890,68 @@
       return "";
     }
 
-    const employeeCode = getEmployeeCodeFromUrl();
-    const HOURS_URL = buildHoursFormUrl(employeeCode);
+   const employeeCode = getEmployeeCodeFromUrl();
 
-    const codeEl = document.getElementById("employeeCode");
-    const nameEl = document.getElementById("employeeName");
-    const warning = document.getElementById("warning");
+let employeeName = "";
+let HOURS_URL = "";
 
-    codeEl.textContent = employeeCode || "BRAK KODU";
+const codeEl = document.getElementById("employeeCode");
+const nameEl = document.getElementById("employeeName");
+const warning = document.getElementById("warning");
+
+codeEl.textContent = employeeCode || "BRAK KODU";
+
+async function loadEmployee() {
+  if (!employeeCode) {
+    warning.style.display = "block";
+    warning.textContent =
+      "Brak kodu pracownika w adresie. Otwórz swój indywidualny link WBS.";
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${WBS_API_URL}/pracownik?kod=${encodeURIComponent(employeeCode)}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok || !data.pracownik) {
+      warning.style.display = "block";
+      warning.textContent =
+        "Nie znaleziono pracownika o kodzie " +
+        employeeCode +
+        ". Sprawdź indywidualny link WBS.";
+      return;
+    }
+
+    employeeName = data.pracownik.imie_nazwisko || "";
 
     if (nameEl) {
-      nameEl.textContent = EMPLOYEES[employeeCode] || "";
+      nameEl.textContent = employeeName;
     }
 
-    if (!employeeCode || !EMPLOYEES[employeeCode]) {
-      warning.style.display = "block";
-      if (employeeCode && !EMPLOYEES[employeeCode]) {
-        warning.textContent = "Nie znaleziono pracownika o kodzie " + employeeCode + ". Sprawdź indywidualny link WBS.";
-      }
+    HOURS_URL = buildHoursFormUrl(
+      employeeCode,
+      employeeName
+    );
+
+    const hoursLink = document.getElementById("hoursLink");
+
+    if (hoursLink && HOURS_URL) {
+      hoursLink.href = HOURS_URL;
+      hoursLink.target = "_blank";
+      hoursLink.rel = "noopener";
     }
+
+    warning.style.display = "none";
+
+  } catch (error) {
+    warning.style.display = "block";
+    warning.textContent =
+      "Nie udało się pobrać danych pracownika. Spróbuj ponownie.";
+  }
+}
 
     function setLink(id, url, label, isHours = false) {
       const el = document.getElementById(id);
@@ -936,14 +973,7 @@
       }
     }
 
-    setLink(
-      "hoursLink",
-      HOURS_URL,
-      employeeCode
-        ? "Nie znaleziono formularza godzin dla kodu: " + employeeCode
-        : "Brak kodu pracownika w adresie.",
-      true
-    );
+ loadEmployee();
     const myHoursLink = document.getElementById("myHoursLink");
     const hoursModal = document.getElementById("hoursModal");
     const closeHoursModal = document.getElementById("closeHoursModal");
@@ -1006,16 +1036,16 @@
       nextMonth.disabled = isCurrentMonth(selectedMonthDate);
     }
 
-    function openHoursModal() {
-      if (!employeeCode || !EMPLOYEES[employeeCode]) {
-        alert("Brak prawidłowego kodu pracownika w linku.");
-        return;
-      }
+function openHoursModal() {
+  if (!employeeCode || !employeeName) {
+    alert("Brak prawidłowego kodu pracownika w linku.");
+    return;
+  }
 
-      const name = EMPLOYEES[employeeCode];
-      hoursEmployeeName.textContent = name;
-      hoursEmployeeCode.textContent = employeeCode;
-      hoursAvatar.textContent = initials(name);
+  const name = employeeName;
+  hoursEmployeeName.textContent = name;
+  hoursEmployeeCode.textContent = employeeCode;
+  hoursAvatar.textContent = initials(name);
 
       sessionPin = "";
       hoursPin.value = "";
