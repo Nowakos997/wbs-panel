@@ -6,6 +6,47 @@
   <meta name="theme-color" content="#111827" />
   <title>WBS – Panel Pracownika</title>
 
+/* WBS - przewijanie okna Moje godziny */
+
+.hours-modal {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.hours-card {
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #facc15 #111827;
+}
+
+.hours-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hours-card::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.hours-card::-webkit-scrollbar-thumb {
+  background: #facc15;
+  border-radius: 10px;
+}
+
+@media (max-width: 650px) {
+  .hours-modal {
+    align-items: center;
+    padding: 10px;
+  }
+
+  .hours-card {
+    max-height: 90dvh;
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+}
+
   <style>
     :root{
       --bg:#0b1020;
