@@ -690,6 +690,157 @@ body::before {
   }
 }
 </style>
+  
+/* ===== WBS: PANEL URLOPOWY ===== */
+
+.leave-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(2,6,23,.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.leave-modal.open {
+  display: flex;
+}
+
+.leave-card {
+  width: min(650px,100%);
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #facc15 #111827;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(180deg,#111827,#0b1220);
+  box-shadow: var(--shadow);
+}
+
+.leave-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.leave-head h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.leave-body {
+  padding: 20px;
+}
+
+.leave-field {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.leave-field label {
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+.leave-field input,
+.leave-field select,
+.leave-field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 12px;
+  background: #0b1220;
+  color: #f8fafc;
+  color-scheme: dark;
+  font: inherit;
+}
+
+.leave-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.leave-button {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #111827;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.leave-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.leave-message {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.leave-error {
+  color: #fecaca;
+  background: rgba(127,29,29,.3);
+  border: 1px solid rgba(248,113,113,.3);
+}
+
+.leave-success {
+  color: #bbf7d0;
+  background: rgba(20,83,45,.25);
+  border: 1px solid rgba(34,197,94,.25);
+}
+
+.leave-history {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.leave-item {
+  margin-top: 9px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.leave-item strong {
+  color: #fde047;
+}
+
+.leave-item span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: .84rem;
+}
+
+@media (max-width: 520px) {
+  .leave-head,
+  .leave-body {
+    padding: 16px;
+  }
+}
+
 </head>
 
 <body>
@@ -871,6 +1022,118 @@ body::before {
     <div class="hours-list" id="hoursList"></div>
   </div>
 </div>
+</div>
+
+<!-- ===== WBS: OKNO URLOPOWE ===== -->
+
+<div class="leave-modal" id="leaveModal"
+     aria-hidden="true">
+
+  <div class="leave-card">
+
+    <div class="leave-head">
+      <h3>WBS | Moje urlopy</h3>
+      <button class="close-btn"
+              id="leaveClose"
+              type="button"
+              aria-label="Zamknij">×</button>
+    </div>
+
+    <div class="leave-body">
+
+      <div id="leaveLogin">
+        <p class="hours-login-note">
+          Potwierdź tożsamość swoim PIN-em.
+        </p>
+
+        <form id="leaveLoginForm">
+          <div class="leave-field">
+            <label for="leavePin">PIN pracownika</label>
+            <input id="leavePin"
+                   type="password"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   required>
+          </div>
+
+          <button class="leave-button"
+                  type="submit">
+            Otwórz moje urlopy
+          </button>
+        </form>
+      </div>
+
+      <div id="leaveContent" style="display:none">
+
+        <p style="color:var(--muted);line-height:1.5">
+          Urlop planowany należy zgłosić
+          minimum 30 dni kalendarzowych
+          przed jego rozpoczęciem.
+        </p>
+
+        <form id="leaveRequestForm">
+
+          <div class="leave-field">
+            <label for="leaveType">Rodzaj urlopu</label>
+            <select id="leaveType" required>
+              <option value="Urlop wypoczynkowy">
+                Urlop wypoczynkowy
+              </option>
+              <option value="Urlop bezpłatny">
+                Urlop bezpłatny
+              </option>
+            </select>
+          </div>
+
+          <div class="leave-field">
+            <label for="leaveStart">
+              Data rozpoczęcia urlopu
+            </label>
+            <input id="leaveStart"
+                   type="date"
+                   required>
+          </div>
+
+          <div class="leave-field">
+            <label for="leaveEnd">
+              Data zakończenia urlopu
+            </label>
+            <input id="leaveEnd"
+                   type="date"
+                   required>
+          </div>
+
+          <div class="leave-field">
+            <label for="leaveNotes">
+              Uwagi (opcjonalnie)
+            </label>
+            <textarea id="leaveNotes"
+                      maxlength="2000"
+                      placeholder="Dodatkowe informacje"></textarea>
+          </div>
+
+          <div id="leaveValidation"></div>
+
+          <button class="leave-button"
+                  id="leaveSend"
+                  type="submit"
+                  disabled>
+            Wyślij wniosek urlopowy
+          </button>
+        </form>
+
+        <div class="leave-history">
+          <h4>Historia moich wniosków</h4>
+          <div id="leaveHistory"></div>
+        </div>
+      </div>
+
+      <div id="leaveMessage"
+           role="status"
+           aria-live="polite"></div>
+
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1339,8 +1602,250 @@ nextMonth.addEventListener("click", async () => {
   await loadHours();
 });
 
+// ===== WBS: OBSLUGA URLOPOW =====
+
+const leaveModal = document.getElementById("leaveModal");
+const leaveLogin = document.getElementById("leaveLogin");
+const leaveContent = document.getElementById("leaveContent");
+const leavePin = document.getElementById("leavePin");
+const leaveMessage = document.getElementById("leaveMessage");
+const leaveValidation = document.getElementById("leaveValidation");
+const leaveSend = document.getElementById("leaveSend");
+const leaveStart = document.getElementById("leaveStart");
+const leaveEnd = document.getElementById("leaveEnd");
+const leaveHistory = document.getElementById("leaveHistory");
+const leaveRequestForm =
+  document.getElementById("leaveRequestForm");
+
+let leaveSessionPin = "";
+
+function leaveToday() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Warsaw",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const get = type =>
+    parts.find(p => p.type === type).value;
+
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function leaveDayNumber(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) {
+    return NaN;
+  }
+
+  const date = new Date(value + "T00:00:00Z");
+
+  if (
+    !Number.isFinite(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== value
+  ) {
+    return NaN;
+  }
+
+  return date.getTime() / 86400000;
+}
+
+function leaveValidate() {
+  const start = leaveDayNumber(leaveStart.value);
+  const end = leaveDayNumber(leaveEnd.value);
+  const today = leaveDayNumber(leaveToday());
+
+  let message = "";
+
+  if (!Number.isFinite(start)) {
+    message = "Wybierz datę rozpoczęcia urlopu.";
+  } else if (start - today < 30) {
+    message =
+      "Zbyt późne zgłoszenie urlopu. " +
+      "Urlop należy zgłosić minimum 30 dni " +
+      "kalendarzowych przed rozpoczęciem.";
+  } else if (!Number.isFinite(end) || end < start) {
+    message = "Wybierz prawidłową datę zakończenia.";
+  }
+
+  leaveSend.disabled = Boolean(message);
+
+  leaveValidation.innerHTML = message
+    ? `<div class="leave-message leave-error">${message}</div>`
+    : `<div class="leave-message leave-success">
+         Termin spełnia zasadę 30 dni.
+       </div>`;
+
+  return !message;
+}
+
+function leaveShowMessage(message, success = false) {
+  leaveMessage.textContent = message;
+  leaveMessage.className = success
+    ? "leave-message leave-success"
+    : "leave-message leave-error";
+}
+
+function leaveCloseModal() {
+  leaveSessionPin = "";
+  leavePin.value = "";
+  leaveLogin.style.display = "block";
+  leaveContent.style.display = "none";
+  leaveHistory.innerHTML = "";
+  leaveMessage.textContent = "";
+  leaveMessage.className = "";
+  leaveModal.classList.remove("open");
+  leaveModal.setAttribute("aria-hidden", "true");
+}
+
+document.getElementById("leaveLink")
+  .addEventListener("click", event => {
+    event.preventDefault();
+
+    if (!employeeCode || !employeeName) {
+      alert("Nie udało się ustalić pracownika.");
+      return;
+    }
+
+    leaveSessionPin = "";
+    leavePin.value = "";
+    leaveMessage.textContent = "";
+    leaveMessage.className = "";
+    leaveLogin.style.display = "block";
+    leaveContent.style.display = "none";
+    leaveModal.classList.add("open");
+    leaveModal.setAttribute("aria-hidden", "false");
+    leaveModal.querySelector(".leave-card").scrollTop = 0;
+  });
+
+document.getElementById("leaveClose")
+  .addEventListener("click", leaveCloseModal);
+
+leaveModal.addEventListener("click", event => {
+  if (event.target === leaveModal) {
+    leaveCloseModal();
+  }
+});
+
+async function leaveApi(path, body = {}) {
+  const response = await fetch(WBS_API_URL + path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      kod: employeeCode,
+      pin: leaveSessionPin,
+      ...body
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.ok) {
+    const error = new Error(
+      data.komunikat || "Nie udało się wykonać operacji."
+    );
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+}
+
+async function leaveLoadHistory() {
+  const data = await leaveApi("/moje-urlopy");
+  const items = data.wnioski || [];
+
+  if (!items.length) {
+    leaveHistory.innerHTML =
+      '<p style="color:var(--muted)">Brak zgłoszonych urlopów.</p>';
+    return;
+  }
+
+  leaveHistory.innerHTML = items.map(item => `
+    <div class="leave-item">
+      <strong>
+        ${escapeHtml(item.data_od)} –
+        ${escapeHtml(item.data_do)}
+      </strong>
+      <span>${escapeHtml(item.rodzaj)}</span>
+      <span>Status: ${escapeHtml(item.status)}</span>
+    </div>
+  `).join("");
+}
+
+document.getElementById("leaveLoginForm")
+  .addEventListener("submit", async event => {
+    event.preventDefault();
+
+    leaveSessionPin = leavePin.value.trim();
+    if (!leaveSessionPin) return;
+
+    const button = event.target.querySelector("button");
+    button.disabled = true;
+    button.textContent = "Sprawdzam PIN...";
+
+    try {
+      await leaveLoadHistory();
+
+      leavePin.value = "";
+      leaveLogin.style.display = "none";
+      leaveContent.style.display = "block";
+      leaveStart.value = "";
+      leaveEnd.value = "";
+      leaveValidate();
+      leaveMessage.textContent = "";
+      leaveMessage.className = "";
+
+    } catch (error) {
+      leaveSessionPin = "";
+      leaveShowMessage(error.message);
+    } finally {
+      button.disabled = false;
+      button.textContent = "Otwórz moje urlopy";
+    }
+  });
+
+leaveStart.addEventListener("change", leaveValidate);
+leaveEnd.addEventListener("change", leaveValidate);
+
+leaveRequestForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!leaveValidate() || leaveSend.disabled) {
+    return;
+  }
+
+  leaveSend.disabled = true;
+  leaveSend.textContent = "Wysyłam wniosek...";
+
+  try {
+    const data = await leaveApi("/zglos-urlop", {
+      data_od: leaveStart.value,
+      data_do: leaveEnd.value,
+      rodzaj: document.getElementById("leaveType").value,
+      uwagi: document.getElementById("leaveNotes").value
+    });
+
+    leaveShowMessage(data.komunikat, true);
+    leaveRequestForm.reset();
+    await leaveLoadHistory();
+
+    leaveModal.querySelector(".leave-card")
+      .scrollTo({top: 0, behavior: "smooth"});
+
+  } catch (error) {
+    leaveShowMessage(error.message);
+  } finally {
+    leaveSend.textContent = "Wyślij wniosek urlopowy";
+    leaveValidate();
+  }
+});
+
+// ===== KONIEC OBSLUGI URLOPOW =====
+
 setLink("toolsLink", TOOLS_URL, "Narzędzia");
-setLink("leaveLink", LEAVE_URL, "Urlopy");
 
 const debugCode = document.getElementById("debugCode");
 if (debugCode) {
