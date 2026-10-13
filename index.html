@@ -689,8 +689,6 @@ body::before {
     flex-direction:column;
   }
 }
-
-  
 /* ===== WBS: PANEL URLOPOWY ===== */
 
 .leave-modal {
@@ -840,6 +838,7 @@ body::before {
     padding: 16px;
   }
 }
+
 </style>
 </head>
 
@@ -1155,7 +1154,6 @@ function buildHoursFormUrl(code, name) {
 
 const WBS_API_URL = "https://wbs-api.d-nowacki.workers.dev";
 const TOOLS_URL = "";
-const LEAVE_URL = "";
 
 function normalizeEmployeeCode(value) {
   return (value || "")
@@ -1618,6 +1616,7 @@ const leaveRequestForm =
   document.getElementById("leaveRequestForm");
 
 let leaveSessionPin = "";
+let leaveSubmitting = false;
 
 function leaveToday() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -1668,7 +1667,7 @@ function leaveValidate() {
     message = "Wybierz prawidłową datę zakończenia.";
   }
 
-  leaveSend.disabled = Boolean(message);
+  leaveSend.disabled = Boolean(message) || leaveSubmitting;
 
   leaveValidation.innerHTML = message
     ? `<div class="leave-message leave-error">${message}</div>`
@@ -1813,10 +1812,11 @@ leaveEnd.addEventListener("change", leaveValidate);
 leaveRequestForm.addEventListener("submit", async event => {
   event.preventDefault();
 
-  if (!leaveValidate() || leaveSend.disabled) {
+  if (leaveSubmitting || !leaveValidate() || leaveSend.disabled) {
     return;
   }
 
+  leaveSubmitting = true;
   leaveSend.disabled = true;
   leaveSend.textContent = "Wysyłam wniosek...";
 
@@ -1828,9 +1828,13 @@ leaveRequestForm.addEventListener("submit", async event => {
       uwagi: document.getElementById("leaveNotes").value
     });
 
-    leaveShowMessage(data.komunikat, true);
     leaveRequestForm.reset();
-    await leaveLoadHistory();
+    try {
+      await leaveLoadHistory();
+      leaveShowMessage(data.komunikat, true);
+    } catch (historyError) {
+      leaveShowMessage(data.komunikat + " Nie udało się odświeżyć historii.", true);
+    }
 
     leaveModal.querySelector(".leave-card")
       .scrollTo({top: 0, behavior: "smooth"});
@@ -1838,6 +1842,7 @@ leaveRequestForm.addEventListener("submit", async event => {
   } catch (error) {
     leaveShowMessage(error.message);
   } finally {
+    leaveSubmitting = false;
     leaveSend.textContent = "Wyślij wniosek urlopowy";
     leaveValidate();
   }
